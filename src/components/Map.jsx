@@ -32,6 +32,13 @@ export default function Map({ size = 1000 }) {
     { id: 6, name: "Energy", color: "#f1dfc3", info: "Power generation & storage" },
     { id: 7, name: "Crops / Biosystems", color: "#cde7c5", info: "Greenhouses & farms" }
   ], []);
+  const zoomBtn = {
+    background: "#fff",
+    padding: "8px 12px",
+    borderRadius: 6,
+    boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
+    fontSize: "clamp(12px, 3vw, 14px)",
+  };
 
 
   const [hover, setHover] = useState(null);
@@ -263,229 +270,225 @@ export default function Map({ size = 1000 }) {
   }
 
   return (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "flex-start",
-      gap: 24,
-      width: "100%",
-      maxWidth: 1400,
-      margin: "0 auto",
-    }}
-  >
-    
-    <div style={{ position: "relative" }}>
-      <svg
-        ref={svgRef}
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        gap: 24,
+        width: "100%",
+        maxWidth: "100%",
+        padding: 12,
+        boxSizing: "border-box",
+      }}
+    >
+      {/* ====== SVG MAP ====== */}
+      <div
         style={{
-          borderRadius: 8,
-          background: "#fbfbfa",
-          cursor: isPanning ? "grabbing" : "default",
+          position: "relative",
+          width: "100%",
+          maxWidth: "700px",
+          flex: "1 1 100%",
         }}
-        onMouseDown={startPan}
-        onMouseMove={movePan}
-        onMouseUp={endPan}
-        onMouseLeave={endPan}
       >
-        <g transform={`translate(${offset.x} ${offset.y}) scale(${zoom})`}>
-          <circle cx={cx} cy={cy} r={outerRadius + 16} fill="#ffffff" stroke="#e9e9e9" />
-
-          {sectorAngles.map((sec) => (
-            <g key={sec.id}>
-              <path
-                d={describeArc(cx, cy, innerRadius, outerRadius, sec.start, sec.end)}
-                fill={sec.color}
-                stroke="#333"
-                strokeWidth={1}
-              />
-
-              {/* sector-specific fills */}
-              {sec.id === 1 && industryFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-              {sec.id === 2 && storageFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-              {sec.id === 3 && housingFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-              {sec.id === 4 && wasteFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-              {sec.id === 5 && researchFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-              {sec.id === 6 && energyFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-              {sec.id === 7 && treeFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
-
-              {/* interactive overlay */}
-              <path
-                d={describeArc(cx, cy, innerRadius, outerRadius, sec.start, sec.end)}
-                fill="transparent"
-                onMouseEnter={(e) => onSectorHover(sec, e)}
-                onMouseMove={(e) => onSectorHover(sec, e)}
-                onMouseLeave={onSectorLeave}
-                onClick={() => setSelected(sec)}
-                style={{ cursor: "pointer" }}
-              />
-
-              {/* label */}
-              {(() => {
-                const mid = (sec.start + sec.end) / 2;
-                const pos = polarToCartesian(cx, cy, (innerRadius + outerRadius) / 2, mid);
-                return (
-                  <text
-                    x={pos.x}
-                    y={pos.y}
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                    fontSize={Math.max(12, size * 0.014)}
-                    fontWeight={800}
-                    fill="#111"
-                  >
-                    {sec.id}
-                  </text>
-                );
-              })()}
-            </g>
-          ))}
-          
-
-          <circle cx={cx} cy={cy} r={biosphereRadius} fill="#eaf4e6" stroke="#2b2b2b" strokeWidth={2} />
-          <text
-            x={cx}
-            y={cy + 6}
-            textAnchor="middle"
-            fontSize={Math.max(14, size * 0.02)}
-            fontWeight={900}
-            fill="#111"
-          >
-            BIOSPHERE
-          </text>
-
-          <text x={cx} y={cy - outerRadius - 20} textAnchor="middle" fontSize={12} fill="#333">
-            ROTATION
-          </text>
-          <text x={cx} y={cy + outerRadius + 30} textAnchor="middle" fontSize={12} fill="#333">
-            CROPS / OUTER RING
-          </text>
-        </g>
-      </svg>
-
-      {/* Floating Tooltip - stays above map */}
-      {hover && (
-        <div
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${size} ${size}`}
+          preserveAspectRatio="xMidYMid meet"
           style={{
-            position: "absolute",
-            left: hover.x,
-            top: hover.y,
-            pointerEvents: "none",
-            transform: "translate(-50%, -120%)",
+            width: "100%",
+            height: "auto",
+            borderRadius: 8,
+            background: "#fbfbfa",
+            touchAction: "none",
+            cursor: isPanning ? "grabbing" : "default",
           }}
+          onMouseDown={startPan}
+          onMouseMove={movePan}
+          onMouseUp={endPan}
+          onMouseLeave={endPan}
         >
+          <g transform={`translate(${offset.x} ${offset.y}) scale(${zoom})`}>
+            <circle cx={cx} cy={cy} r={outerRadius + 16} fill="#ffffff" stroke="#e9e9e9" />
+            {sectorAngles.map((sec) => (
+              <g key={sec.id}>
+                <path
+                  d={describeArc(cx, cy, innerRadius, outerRadius, sec.start, sec.end)}
+                  fill={sec.color}
+                  stroke="#333"
+                  strokeWidth={1}
+                />
+                {sec.id === 1 && industryFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+                {sec.id === 2 && storageFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+                {sec.id === 3 && housingFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+                {sec.id === 4 && wasteFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+                {sec.id === 5 && researchFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+                {sec.id === 6 && energyFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+                {sec.id === 7 && treeFill(cx, cy, innerRadius + 6, outerRadius - 6, sec.start, sec.end)}
+
+                <path
+                  d={describeArc(cx, cy, innerRadius, outerRadius, sec.start, sec.end)}
+                  fill="transparent"
+                  onMouseEnter={(e) => onSectorHover(sec, e)}
+                  onMouseMove={(e) => onSectorHover(sec, e)}
+                  onMouseLeave={onSectorLeave}
+                  onClick={() => setSelected(sec)}
+                  style={{ cursor: "pointer" }}
+                />
+
+                {(() => {
+                  const mid = (sec.start + sec.end) / 2;
+                  const pos = polarToCartesian(cx, cy, (innerRadius + outerRadius) / 2, mid);
+                  return (
+                    <text
+                      x={pos.x}
+                      y={pos.y}
+                      textAnchor="middle"
+                      alignmentBaseline="middle"
+                      fontSize={Math.max(10, size * 0.012)}
+                      fontWeight={800}
+                      fill="#111"
+                    >
+                      {sec.id}
+                    </text>
+                  );
+                })()}
+              </g>
+            ))}
+            <circle cx={cx} cy={cy} r={biosphereRadius} fill="#eaf4e6" stroke="#2b2b2b" strokeWidth={2} />
+            <text x={cx} y={cy + 6} textAnchor="middle" fontSize={Math.max(12, size * 0.02)} fontWeight={900} fill="#111">
+              BIOSPHERE
+            </text>
+          </g>
+        </svg>
+
+        {hover && (
           <div
             style={{
-              background: "white",
-              border: "1px solid #ddd",
-              padding: 8,
-              borderRadius: 6,
-              boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+              position: "absolute",
+              left: hover.x,
+              top: hover.y,
+              pointerEvents: "none",
+              transform: "translate(-50%, -120%)",
             }}
           >
-            <div style={{ fontWeight: 800 }}>{hover.name}</div>
-            <div style={{ fontSize: 12, color: "#666" }}>{hover.info}</div>
-          </div>
-        </div>
-      )}
-    </div>
-
-     
-
-    {/* ==== RIGHT SIDE: INFO PANELS ==== */}
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, width: 300 }}>
-      {/* Legend */}
-      <div
-        style={{
-          background: "#fff",
-          padding: 12,
-          borderRadius: 8,
-          boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
-        }}
-      >
-        <div style={{ fontWeight: 800, marginBottom: 8 }}>Legend</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {sectors.map((s) => (
-            <div key={s.id} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <div style={{ width: 22, height: 14, background: s.color, border: "1px solid #333" }} />
-              <div style={{ fontSize: 13 }}>{s.name}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Selected Sector */}
-      <div
-        style={{
-          background: "#fff",
-          padding: 12,
-          borderRadius: 8,
-          boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
-        }}
-      >
-        
-        <div style={{ fontWeight: 800, marginBottom: 8 }}>Selected Sector</div>
-        {selected ? (
-          <div>
-            <div style={{ fontWeight: 800 }}>{selected.name}</div>
-            <div style={{ fontSize: 13, color: "#666", marginTop: 6 }}>{selected.info}</div>
-            <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-              <button
-                onClick={() => alert(`Navigate to ${selected.name}`)}
-                style={{
-                  flex: 1,
-                  padding: 8,
-                  background: "#2563eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 6,
-                }}
-              >
-                Goto
-              </button>
-              <button
-                onClick={() => setSelected(null)}
-                style={{
-                  flex: 1,
-                  padding: 8,
-                  background: "#f3f4f6",
-                  border: "none",
-                  borderRadius: 6,
-                }}
-              >
-                Close
-              </button>
+            <div
+              style={{
+                background: "white",
+                border: "1px solid #ddd",
+                padding: 8,
+                borderRadius: 6,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                fontSize: "clamp(10px, 2vw, 14px)",
+              }}
+            >
+              <div style={{ fontWeight: 800 }}>{hover.name}</div>
+              <div style={{ fontSize: 12, color: "#666" }}>{hover.info}</div>
             </div>
           </div>
-        ) : (
-          <div style={{ color: "#777" }}>Click any sector to view details.</div>
         )}
-        <div style={{ marginTop: 12, fontSize: 12, color: "#999" }}>
-          Pan: drag • Zoom: mouse wheel • Click sector for details
+      </div>
+
+      {/* ====== INFO PANELS ====== */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          width: "100%",
+          maxWidth: "400px",
+          flex: "1 1 100%",
+        }}
+      >
+        <div
+          style={{
+            background: "#fff",
+            padding: 12,
+            borderRadius: 8,
+            boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+          }}
+        >
+          <div style={{ fontWeight: 800, marginBottom: 8 }}>Legend</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {sectors.map((s) => (
+              <div key={s.id} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div style={{ width: 20, height: 12, background: s.color, border: "1px solid #333" }} />
+                <div style={{ fontSize: "clamp(10px, 2vw, 13px)" }}>{s.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "#fff",
+            padding: 12,
+            borderRadius: 8,
+            boxShadow: "0 6px 18px rgba(0,0,0,0.04)",
+          }}
+        >
+          <div style={{ fontWeight: 800, marginBottom: 8 }}>Selected Sector</div>
+          {selected ? (
+            <div>
+              <div style={{ fontWeight: 800 }}>{selected.name}</div>
+              <div style={{ fontSize: 13, color: "#666", marginTop: 6 }}>{selected.info}</div>
+              <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => alert(`Navigate to ${selected.name}`)}
+                  style={{
+                    flex: 1,
+                    padding: "8px 0",
+                    background: "#2563eb",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: "clamp(12px, 3vw, 14px)",
+                  }}
+                >
+                  Goto
+                </button>
+                <button
+                  onClick={() => setSelected(null)}
+                  style={{
+                    flex: 1,
+                    padding: "8px 0",
+                    background: "#f3f4f6",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: "clamp(12px, 3vw, 14px)",
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ color: "#777", fontSize: "clamp(12px, 2vw, 14px)" }}>Click any sector to view details.</div>
+          )}
+        </div>
+
+        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+          <button onClick={() => setZoom((z) => Math.min(3, z * 1.2))} style={zoomBtn}>
+            +
+          </button>
+          <button onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))} style={zoomBtn}>
+            −
+          </button>
+          <button
+            onClick={() => {
+              setZoom(1);
+              setOffset({ x: 0, y: 0 });
+            }}
+            style={zoomBtn}
+          >
+            Reset
+          </button>
         </div>
       </div>
-      <div className=" right-3 bottom-3 flex flex-col gap-2">
-              <button className="bg-white p-2 rounded shadow text-sm" onClick={() => setZoom((z) => Math.min(3, z * 1.2))}>
-                +
-              </button>
-              <button className="bg-white p-2 rounded shadow text-sm" onClick={() => setZoom((z) => Math.max(0.5, z / 1.2))}>
-                -
-              </button>
-              <button
-                className="bg-white p-2 rounded shadow text-sm"
-                onClick={() => {
-                  setZoom(1);
-                  setOffset({ x: 0, y: 0 });
-                }}
-              >
-                Reset
-              </button>
     </div>
-    </div>
-  </div>
-);
+  );
+
 
 }
