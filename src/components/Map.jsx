@@ -62,23 +62,26 @@ export default function Map({ size = 1000 }) {
     return () => svg.removeEventListener("wheel", wheel);
   }, []);
 
-  function startPan(e) {
-    setIsPanning(true);
-    panRef.current.sx = e.clientX;
-    panRef.current.sy = e.clientY;
-    panRef.current.ox = offset.x;
-    panRef.current.oy = offset.y;
-  }
-  function movePan(e) {
-    if (!isPanning) return;
-    const dx = e.clientX - panRef.current.sx;
-    const dy = e.clientY - panRef.current.sy;
-    setOffset({ x: panRef.current.ox + dx, y: panRef.current.oy + dy });
-  }
-  function endPan() {
-    setIsPanning(false);
-  }
+ function startPan(e) {
+  setIsPanning(true);
+  const point = e.touches ? e.touches[0] : e;
+  panRef.current.sx = point.clientX;
+  panRef.current.sy = point.clientY;
+  panRef.current.ox = offset.x;
+  panRef.current.oy = offset.y;
+}
 
+function movePan(e) {
+  if (!isPanning) return;
+  const point = e.touches ? e.touches[0] : e;
+  const dx = point.clientX - panRef.current.sx;
+  const dy = point.clientY - panRef.current.sy;
+  setOffset({ x: panRef.current.ox + dx, y: panRef.current.oy + dy });
+}
+
+function endPan() {
+  setIsPanning(false);
+}
 
   function industryFill(cx, cy, r1, r2, start, end) {
     const elems = [];
@@ -293,22 +296,26 @@ export default function Map({ size = 1000 }) {
           flex: "1 1 100%",
         }}
       >
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${size} ${size}`}
-          preserveAspectRatio="xMidYMid meet"
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: 8,
-            background: "#fbfbfa",
-            touchAction: "none",
-            cursor: isPanning ? "grabbing" : "default",
-          }}
-          onMouseDown={startPan}
-          onMouseMove={movePan}
-          onMouseUp={endPan}
-          onMouseLeave={endPan}
+       <svg
+            ref={svgRef}
+            viewBox={`0 0 ${size} ${size}`}
+            preserveAspectRatio="xMidYMid meet"
+            style={{
+              width: "100%",
+              height: "auto",
+              borderRadius: 8,
+              background: "#fbfbfa",
+              touchAction: "none",  // disables default browser panning
+              cursor: isPanning ? "grabbing" : "default",
+            }}
+            onMouseDown={startPan}
+            onMouseMove={movePan}
+            onMouseUp={endPan}
+            onMouseLeave={endPan}
+            onTouchStart={startPan}
+            onTouchMove={movePan}
+            onTouchEnd={endPan}
+            onTouchCancel={endPan}
         >
           <g transform={`translate(${offset.x} ${offset.y}) scale(${zoom})`}>
             <circle cx={cx} cy={cy} r={outerRadius + 16} fill="#ffffff" stroke="#e9e9e9" />
